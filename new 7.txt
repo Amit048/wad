@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Calculator</title>
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#calculateBtn').click(function() {
+        var num1 = parseFloat($('#num1').val());
+        var num2 = parseFloat($('#num2').val());
+
+        if (!isNaN(num1) && !isNaN(num2)) {
+          var operator = $('#operator').val();
+          var result;
+
+          switch (operator) {
+            case 'add':
+              result = num1 + num2;
+              break;
+            case 'subtract':
+              result = num1 - num2;
+              break;
+            case 'multiply':
+              result = num1 * num2;
+              break;
+            case 'divide':
+              result = num1 / num2;
+              break;
+            default:
+              result = 'Invalid operator';
+          }
+
+          $('#calcResult').text('Result: ' + result);
+        } else {
+          $('#calcResult').text('Please enter valid numbers');
+        }
+      });
+
+      $('#userInput').on('input', function() {
+        var inputValue = $(this).val();
+        $('#userInputResult').text('Current Result: ' + inputValue);
+      });
+
+      $('#resetBtn').click(function() {
+        $('#userInput').val('');
+        $('#userInputResult').text('Current Result:');
+      });
+
+      $('#submitButton').click(function() {
+        var userName = $('#userName').val();
+        $('#messageContainer').text('Hello, ' + userName + '!');
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Simple Calculator</h1>
+  
+  <label for="num1">Enter Number 1:</label>
+  <input type="text" id="num1" />
+
+  <label for="operator">Select Operator:</label>
+  <select id="operator">
+    <option value="add">+</option>
+    <option value="subtract">-</option>
+    <option value="multiply">*</option>
+    <option value="divide">/</option>
+  </select>
+
+  <label for="num2">Enter Number 2:</label>
+  <input type="text" id="num2" />
+
+  <button type="button" id="calculateBtn">Calculate</button>
+
+  <div id="calcResult"></div>
+
+  <br><br>
+
+  <label for="userInput">Enter a Number:</label>
+  <input type="text" id="userInput" />
+
+  <button type="button" id="resetBtn">Reset</button>
+
+  <div id="userInputResult">Current Result:</div>
+
+  <label for="userName">Enter Your Name:</label>
+  <input type="text" id="userName" />
+
+  <button type="button" id="submitButton">Submit</button>
+
+  <div id="messageContainer"></div>
+</body>
+</html>
