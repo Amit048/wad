@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<style>
+    table {
+        border: 2px solid black;
+    }
+
+    tr,
+    td {
+        border: 2px solid black;
+    }
+</style>
+
+<body>
+    <form action="category2.php" method="POST"> <!-- Correct the action to match the PHP file -->
+        <center>
+            <h2>Category Data:</h2>
+            <table>
+                <tr>
+                    <td>Name:
+                        <?php
+                        if (isset($_POST["id"])) {
+                            echo '<input type="text" name="name" value="' . $data['name'] . '">';
+                        } else {
+                            echo '<input type="text" name="name" id="name">';
+                        }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="hidden" id="edit" name="edit">
+                        <input type="hidden" id="editId" name="editId"> 
+                        <input type="button" value="Update" id="update" name="update">
+                        <input type="button" name="submit" value="Submit" id="submit">
+                        <input type="reset" value="Reset" name="reset">
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </form>
+    <br>
+    <center>
+        <h2>Fetch Data</h2>
+        <table id="categotyTable">
+            <tr>
+                <td>ID</td>
+                <td>Category_Name</td>
+                <td>Operation</td>
+            </tr>
+        </table>
+    </center>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+
+        // Insertion code...
+        $(document).ready(function () {
+            $('#submit').click(handleSubmit);
+            categoryFetch();
+        });
+
+        // Deletion code...
+        $(document).ready(function () {
+            $('#categotyTable').on('click', '.deletelink', function (e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                categoryDelete(id);
+            });
+        });
+
+        // Insertion code...
+        function handleSubmit(e) {
+            e.preventDefault();
+            $.ajax({
+                method: 'POST',
+                url: 'category.php', // Correct the URL to match the form action
+                data: { name: $('#name').val() },
+                success: function () {
+                    categoryFetch();
+                }
+            });
+        }
+
+        // Fetching code...
+        function categoryFetch() {
+            $.ajax({
+                method: 'POST',
+                url: 'categoryFetch.php',
+                success: function (data) {
+                    $('#categotyTable').html(data);
+                }
+            });
+        }
+
+        // Deletion code...
+        function categoryDelete(id) {
+            $.ajax({
+                method: 'POST',
+                url: 'categoryDelete.php',
+                data: { id: id },
+                success: function () {
+                    categoryFetch();
+                }
+            });
+        }
+
+        $(document).ready(function () {
+        $('#categotyTable').on('click', '.editlink', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id');
+            // Fetch data for the selected category
+            $.ajax({
+                method: 'POST',
+                url: 'getCategory.php',
+                data: { id: id },
+                success: function (data) {
+                    // Populate the form with the fetched data
+                    $('#edit').val(true);
+                    $('#editId').val(id);
+                    $('#name').val(data.name);
+                }
+            });
+        });
+    });
+    </script>
+
+</body>
+
+</html>
+
+
+--- category.php
+<?php
+include 'conn.php';
+
+$name = $_POST['name'];
+
+$sql = "insert into category (name) values('$name')";
+$result = mysqli_query($conn,$sql);
+?> 
+
+-- category2.php
+
+<?php
+include 'conn.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['edit']) && $_POST['edit'] == true) {
+        $editId = $_POST['editId'];
+        $newName = $_POST['name'];
+
+        $sql = "UPDATE category SET name = '$newName' WHERE id = $editId";
+        $result = mysqli_query($conn, $sql);
+
+        if ($result) {
+
+            header('Location: category.php');
+            exit();
+        } else {
+            echo "Error updating category: " . mysqli_error($conn);
+        }
+    } else {
+        $name = $_POST['name'];
+
+        $sql = "INSERT INTO category (name) VALUES ('$name')";
+        $result = mysqli_query($conn, $sql);
+
+        if ($result) {
+            header('Location: category2.php');
+            exit();
+        } else {
+            echo "Error adding category: " . mysqli_error($conn);
+        }
+    }
+}
+?>
+--getCategory
+
+<?php
+include 'conn.php';
+$id = $_POST['id']; 
+
+$sql = "SELECT name FROM category WHERE id = $id";
+
+$result = mysqli_query($conn, $sql);
+
+if ($result) {
+    $data = mysqli_fetch_assoc($result);
+
+    
+    header('location:categoryData.php');
+    echo json_encode($data);
+} else {
+    echo "Error: " . mysqli_error($conn);
+}
+?>
